@@ -14,6 +14,9 @@ var Val Config
 type Config struct {
 	Mode string `mapstructure:"MODE"`
 	Port string `mapstructure:"PORT"`
+
+	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
+	GoogleClientID  string `mapstructure:"GOOLE_CLIENT_ID"`
 }
 
 // Init Init
