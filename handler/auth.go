@@ -12,6 +12,7 @@ import (
 	"github.com/tidwall/gjson"
 
 	"tomato/config"
+	jwt "tomato/pkg/jwt"
 	"tomato/pkg/res"
 )
 
@@ -53,7 +54,18 @@ func GoogleLogin(c *gin.Context) {
 		return
 	}
 
-	log.Infof("id: %v, name: %v", id, name)
+	jwtToken, err := jwt.GenerateToken(id, name)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Debug("GenerateToken error")
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+
+	c.SetCookie(jwt.Key, jwtToken, config.Val.JWTTokenLife, "/", "localhost", false, true)
+
+	c.Redirect(http.StatusFound, "/")
 }
 
 func accessToken(code string) (token string, err error) {
