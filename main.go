@@ -22,6 +22,7 @@ func main() {
 	{
 		api.GET("ouath/google/url", handler.GoogleAccsess)
 		api.GET("ouath/google/login", handler.GoogleLogin)
+		api.GET("user/info", handler.GetUserInfo)
 	}
 
 	r.Run(":" + config.Val.Port)
