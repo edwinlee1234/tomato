@@ -41,7 +41,7 @@ func GenerateToken(userID, username string) (string, error) {
 // ParseToken 驗證Token對不對，如果對就回傳user info
 func ParseToken(token string) (userID, userName string, err error) {
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return config.Val.JWTSecret, nil
+		return []byte(config.Val.JWTSecret), nil
 	})
 
 	if err != nil {
