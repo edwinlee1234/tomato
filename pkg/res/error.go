@@ -8,4 +8,6 @@ const (
 	ErrSystemCode = 10000
 	// ErrParamsCode ErrParamsCode
 	ErrParamsCode = 10001
+	// ErrUnauthorizedCode ErrUnauthorizedCode
+	ErrUnauthorizedCode = 10002
 )
