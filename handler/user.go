@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"tomato/pkg/jwt"
 	"tomato/pkg/res"
 
@@ -21,7 +20,6 @@ func GetUserInfo(c *gin.Context) {
 	}
 
 	id, name, err := jwt.ParseToken(token)
-	fmt.Println(err)
 	if err != nil {
 		res.Success(c, gin.H{
 			"is_login":  false,
