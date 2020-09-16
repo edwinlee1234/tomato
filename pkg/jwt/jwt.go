@@ -21,7 +21,7 @@ type Claims struct {
 // GenerateToken 產生Token
 func GenerateToken(userID, username string) (string, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(time.Hour * time.Duration(24) * time.Duration(config.Val.JWTTokenLife)) // Token有效時間
+	expireTime := nowTime.Add(time.Duration(config.Val.JWTTokenLife) * time.Second) // Token有效時間
 
 	claims := Claims{
 		username,
