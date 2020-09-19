@@ -15,6 +15,16 @@ type Config struct {
 	Mode string `mapstructure:"MODE"`
 	Port string `mapstructure:"PORT"`
 
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	DBUser     string `mapstructure:"DB_User"`
+	DBPass     string `mapstructure:"DB_Pass"`
+	DBDatabase string `mapstructure:"DB_DATABASE"`
+
+	DBMaxConn     int `mapstructure:"DB_MAX_CONN"`
+	DBIdleConn    int `mapstructure:"DB_IDLE_CONN"`
+	DBMaxLifeTime int `mapstructure:"DB_MAX_LIFE_TIME"`
+
 	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
 	GoogleClientID  string `mapstructure:"GOOLE_CLIENT_ID"`
 

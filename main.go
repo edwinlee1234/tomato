@@ -4,6 +4,7 @@ import (
 	"tomato/config"
 	"tomato/handler"
 	"tomato/middleware"
+	"tomato/model"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -32,4 +33,5 @@ func main() {
 
 func load() {
 	config.Init()
+	model.Init()
 }
