@@ -18,6 +18,7 @@ func Auth() gin.HandlerFunc {
 				"result":     false,
 				"error_code": res.ErrUnauthorizedCode,
 			})
+			c.Abort()
 			return
 		}
 
@@ -28,6 +29,7 @@ func Auth() gin.HandlerFunc {
 				"result":     false,
 				"error_code": res.ErrUnauthorizedCode,
 			})
+			c.Abort()
 			return
 		}
 
