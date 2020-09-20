@@ -27,6 +27,9 @@ func main() {
 		api.GET("user/info", handler.GetUserInfo)
 		api.POST("task", middleware.Auth(), handler.CreateTask)
 		api.GET("groups", middleware.Auth(), handler.GetGroups)
+		api.PUT("task", middleware.Auth(), handler.UpdateTask)
+		api.DELETE("task/:task_id", middleware.Auth(), handler.DeleteTask)
+		api.POST("/pomo", middleware.Auth(), handler.Pomo)
 	}
 
 	r.Run(":" + config.Val.Port)

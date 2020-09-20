@@ -72,3 +72,36 @@ func (m TasksModelObj) GetGroup(userID string) ([]*Task, error) {
 
 	return group, res.Error
 }
+
+// Delete Delete
+func (m TasksModelObj) Delete(id int) error {
+	res := DBConn.Table(m.Table).
+		Where("id = ? or parent_id = ?", id, id).
+		Updates(map[string]interface{}{
+			"status": TaskDisable,
+		})
+
+	return res.Error
+}
+
+// Update Update
+func (m TasksModelObj) Update(id int, userID string, task Task) error {
+	res := DBConn.Table(m.Table).
+		Where("id = ?", id).
+		Where("user_id = ?", userID).
+		Updates(&task)
+
+	return res.Error
+}
+
+// GetByIDAndUserID GetByIDAndUserID
+func (m TasksModelObj) GetByIDAndUserID(id int, userID string) (*Task, error) {
+	var task Task
+	res := DBConn.Table(m.Table).
+		Where("id = ?", id).
+		Where("user_id = ?", userID).
+		Where("status = ?", TaskAble).
+		First(&task)
+
+	return &task, res.Error
+}

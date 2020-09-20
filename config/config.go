@@ -32,6 +32,8 @@ type Config struct {
 	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
 	GoogleClientID  string `mapstructure:"GOOLE_CLIENT_ID"`
 
+	TimeFormat string `mapstructure:"TIMEFORMAT"`
+
 	JWTTokenLife int    `mapstructure:"JWT_TOKEN_LIFE"`
 	JWTSecret    string `mapstructure:"JWT_SECRET"`
 }

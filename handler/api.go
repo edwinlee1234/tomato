@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"time"
+	"tomato/config"
 	"tomato/model"
 	"tomato/pkg/redis"
 	"tomato/pkg/res"
@@ -35,6 +37,12 @@ func CreateTask(c *gin.Context) {
 		}).Error("db error")
 		res.SystemError(c, res.ErrSystemCode, gin.H{})
 		return
+	}
+
+	if taskData.ParentID == 0 {
+		redis.Conn.Del(context.Background(), redisGroupsKey(c.GetString("user_id")))
+	} else {
+		redis.Conn.Del(context.Background(), redisTasksKey(c.GetString("user_id")))
 	}
 
 	res.Success(c, gin.H{})
@@ -160,4 +168,112 @@ func redisGroupsKey(userID string) string {
 
 func redisTasksKey(userID string) string {
 	return "tasks:" + userID
+}
+
+// UpdateTask UpdateTask
+func UpdateTask(c *gin.Context) {
+	var params struct {
+		ID       int    `json:"id" binding:"required"`
+		TaskName string `json:"name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&params); err != nil {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	task := model.Task{
+		Name: params.TaskName,
+	}
+	if err := model.TaskModel.Update(params.ID, c.GetString("user_id"), task); err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	redis.Conn.Del(context.Background(), redisGroupsKey(c.GetString("user_id")))
+	redis.Conn.Del(context.Background(), redisTasksKey(c.GetString("user_id")))
+
+	res.Success(c, gin.H{})
+}
+
+// DeleteTask DeleteTask
+func DeleteTask(c *gin.Context) {
+	taskID := c.Param("task_id")
+	if c.Param("task_id") == "" {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": "id not found",
+		})
+		return
+	}
+
+	id, err := strconv.Atoi(taskID)
+	if err != nil {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": "id error",
+		})
+		return
+	}
+
+	if err := model.TaskModel.Delete(id); err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	redis.Conn.Del(context.Background(), redisGroupsKey(c.GetString("user_id")))
+	redis.Conn.Del(context.Background(), redisTasksKey(c.GetString("user_id")))
+
+	res.Success(c, gin.H{})
+}
+
+// Pomo Pomo
+func Pomo(c *gin.Context) {
+	var params struct {
+		ID   int `json:"id" binding:"required"`
+		Time int `json:"time" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&params); err != nil {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	userID := c.GetString("user_id")
+
+	// 檢查任務存不存在
+	task, err := model.TaskModel.GetByIDAndUserID(params.ID, userID)
+	if err != nil || task.ID == 0 {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": "has no task",
+		})
+		return
+	}
+
+	nowTime := time.Now()
+	record := model.Record{
+		UserID:           userID,
+		TaskID:           task.ID,
+		ParentID:         task.ParentID,
+		SpendTime:        params.Time,
+		Date:             nowTime.Format(config.Val.TimeFormat),
+		CreatedTimestamp: nowTime.UTC().Unix(),
+	}
+	if err := model.RecordsModel.Create(record); err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	res.Success(c, gin.H{})
 }
