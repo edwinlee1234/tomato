@@ -123,9 +123,9 @@ func findGroups(userID string) (groups []*model.Task, err error) {
 func findTasks(userID string, parentID []int) (tasks []*model.Task, err error) {
 	var data []*model.Task
 	redisCache := false
-	val, err := redis.Conn.Get(context.Background(), redisTasksKey(userID)).Result()
+	val, err := redis.Conn.Get(context.Background(), redisTasksKey(userID)).Bytes()
 	if err == nil {
-		if err = json.Unmarshal([]byte(val), &data); err == nil {
+		if err = json.Unmarshal(val, &data); err == nil {
 			redisCache = true
 		}
 	}
