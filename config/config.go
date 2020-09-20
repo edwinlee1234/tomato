@@ -25,6 +25,10 @@ type Config struct {
 	DBIdleConn    int `mapstructure:"DB_IDLE_CONN"`
 	DBMaxLifeTime int `mapstructure:"DB_MAX_LIFE_TIME"`
 
+	RedisHost string `mapstructure:"REDIS_HOST"`
+	RedisPort string `mapstructure:"REDIS_PORT"`
+	RedisPass string `mapstructure:"REDIS_PASS"`
+
 	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
 	GoogleClientID  string `mapstructure:"GOOLE_CLIENT_ID"`
 

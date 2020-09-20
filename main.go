@@ -5,6 +5,7 @@ import (
 	"tomato/handler"
 	"tomato/middleware"
 	"tomato/model"
+	"tomato/pkg/redis"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -24,7 +25,8 @@ func main() {
 		api.GET("ouath/google/url", handler.GoogleAccsess)
 		api.GET("ouath/google/login", handler.GoogleLogin)
 		api.GET("user/info", handler.GetUserInfo)
-		api.POST("/task", middleware.Auth(), handler.CreateTask)
+		api.POST("task", middleware.Auth(), handler.CreateTask)
+		api.GET("groups", middleware.Auth(), handler.GetGroups)
 	}
 
 	r.Run(":" + config.Val.Port)
@@ -35,4 +37,5 @@ func main() {
 func load() {
 	config.Init()
 	model.Init()
+	redis.Init()
 }
