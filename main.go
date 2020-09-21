@@ -29,7 +29,9 @@ func main() {
 		api.GET("groups", middleware.Auth(), handler.GetGroups)
 		api.PUT("task", middleware.Auth(), handler.UpdateTask)
 		api.DELETE("task/:task_id", middleware.Auth(), handler.DeleteTask)
-		api.POST("/pomo", middleware.Auth(), handler.Pomo)
+		api.POST("pomo", middleware.Auth(), handler.Pomo)
+		api.GET("report/pie", middleware.Auth(), handler.GetReportPie)
+		api.GET("report/line", middleware.Auth(), handler.GetReportLine)
 	}
 
 	r.Run(":" + config.Val.Port)

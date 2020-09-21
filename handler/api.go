@@ -277,3 +277,164 @@ func Pomo(c *gin.Context) {
 
 	res.Success(c, gin.H{})
 }
+
+// TaskReport TaskReport
+type TaskReport struct {
+	ID             int    `json:"id"`
+	ParentID       int    `json:"-"`
+	Name           string `json:"name"`
+	TotalSpendTime int    `json:"total_spend_time"`
+}
+
+// GroupReport GroupReport
+type GroupReport struct {
+	ID             int           `json:"id"`
+	Name           string        `json:"name"`
+	TotalSpendTime int           `json:"total_spend_time"`
+	Tasks          []*TaskReport `json:"tasks"`
+}
+
+// GetReportPie GetReportPie
+func GetReportPie(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	nowTime := time.Now()
+	endDate := nowTime.Format(config.Val.TimeFormat)
+	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
+
+	// 取得記錄的時間加總
+	records, err := model.RecordsModel.GetByUserIDAndTimeBetween(userID, startDate, endDate)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("GetByUserIDAndTimeBetween error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	var tasksReport []*TaskReport
+	var groupsReport []*GroupReport
+
+	groups, tasks, err := findGroupsAndTasks(userID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("findGroup error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	for _, g := range groups {
+		groupsReport = append(groupsReport, &GroupReport{
+			ID:   g.ID,
+			Name: g.Name,
+		})
+	}
+
+	for _, t := range tasks {
+		tasksReport = append(tasksReport, &TaskReport{
+			ID:       t.ID,
+			ParentID: t.ParentID,
+			Name:     t.Name,
+		})
+	}
+
+	// 找到記錄對應的任務
+	for _, r := range records {
+		for _, t := range tasksReport {
+			if t.ID == r.TaskID {
+				t.TotalSpendTime += r.SpendTime
+				break
+			}
+		}
+	}
+
+	// 找到任務對應的群組
+	for _, t := range tasksReport {
+		for _, g := range groupsReport {
+			if t.ParentID == g.ID {
+				g.TotalSpendTime += t.TotalSpendTime
+				g.Tasks = append(g.Tasks, t)
+				break
+			}
+		}
+	}
+
+	res.Success(c, gin.H{
+		"report": groupsReport,
+	})
+}
+
+// DateReport DateReport
+type DateReport struct {
+	Date           string `json:"date"`
+	TotalSpendTime int    `json:"total_spend_time"`
+}
+
+func rangeDate(endDate time.Time, days int) []string {
+	dates := []string{}
+	for i := days - 1; i > 0; i-- {
+		dates = append(dates, endDate.AddDate(0, 0, -i).Format(config.Val.TimeFormat))
+	}
+
+	dates = append(dates, endDate.Format(config.Val.TimeFormat))
+
+	return dates
+}
+
+// GetReportLine GetReportLine
+func GetReportLine(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	nowTime := time.Now()
+	endDate := nowTime.Format(config.Val.TimeFormat)
+	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
+
+	dateStatistics := rangeDate(nowTime, 7)
+	daysReport, err := sumDateReport(userID, startDate, endDate, dateStatistics)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	res.Success(c, gin.H{
+		"report": daysReport,
+	})
+}
+
+func sumDateReport(userID, startDate, endDate string, dateStatistics []string) ([]*DateReport, error) {
+	var daysReport []*DateReport
+	daySum, err := model.RecordsModel.SumByDate(userID, startDate, endDate)
+	if err != nil {
+		return daysReport, err
+	}
+	// 初始化7天的資料
+	for _, ds := range dateStatistics {
+		daysReport = append(daysReport, &DateReport{
+			Date: ds,
+		})
+	}
+
+	for _, d := range daySum {
+		// 轉換DB日期的型態
+		t1, err := time.Parse(time.RFC3339, d.Date)
+		if err != nil {
+			return daysReport, err
+		}
+		parsedDate := t1.Format("2006-01-02")
+
+		// 把值加總在對應的日期上
+		for _, dr := range daysReport {
+			if dr.Date == parsedDate {
+				dr.TotalSpendTime = d.SpendTime
+				break
+			}
+		}
+	}
+
+	return daysReport, nil
+}

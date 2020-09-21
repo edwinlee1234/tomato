@@ -28,3 +28,30 @@ type RecordsModelObj struct {
 func (r *RecordsModelObj) Create(row Record) error {
 	return DBConn.Table(r.Table).Create(&row).Error
 }
+
+// GetByUserIDAndTimeBetween GetByUserIDAndTimeBetween
+func (r *RecordsModelObj) GetByUserIDAndTimeBetween(userID string, startDate, endDate string) ([]Record, error) {
+	var data []Record
+
+	res := DBConn.Table(r.Table).
+		Where("user_id = ?", userID).
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Scan(&data)
+
+	return data, res.Error
+}
+
+// SumByDate SumByDate
+func (r *RecordsModelObj) SumByDate(userID string, startDate, endDate string) ([]Record, error) {
+	var data []Record
+
+	res := DBConn.Table(r.Table).
+		Select("date, SUM(spend_time) as spend_time").
+		Where("user_id = ?", userID).
+		Where("date BETWEEN ? AND ?", startDate, endDate).
+		Group("date").
+		Order("date ASC").
+		Scan(&data)
+
+	return data, res.Error
+}
