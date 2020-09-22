@@ -32,6 +32,8 @@ func main() {
 		api.POST("pomo", middleware.Auth(), handler.Pomo)
 		api.GET("report/pie", middleware.Auth(), handler.GetReportPie)
 		api.GET("report/line", middleware.Auth(), handler.GetReportLine)
+		api.GET("report/task_heatmap", middleware.Auth(), handler.GetTaskHeatMap)
+		api.GET("report/group_heatmap", middleware.Auth(), handler.GetAllGroupHeatMap)
 	}
 
 	r.Run(":" + config.Val.Port)

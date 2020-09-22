@@ -105,3 +105,20 @@ func (m TasksModelObj) GetByIDAndUserID(id int, userID string) (*Task, error) {
 
 	return &task, res.Error
 }
+
+// GetTasksByParentID GetTasksByParentID
+func (m TasksModelObj) GetTasksByParentID(parentID []int, userID string, status []int) ([]*Task, error) {
+	var tasks []*Task
+	res := DBConn.Table(m.Table).
+		Where("user_id = ?", userID).
+		Where("parent_id in (?)", parentID).
+		Where("status IN (?)", status).
+		Order("created_timestamp ASC").
+		Scan(&tasks)
+
+	if res.Error == gorm.ErrRecordNotFound {
+		return tasks, nil
+	}
+
+	return tasks, res.Error
+}

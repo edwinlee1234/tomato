@@ -438,3 +438,150 @@ func sumDateReport(userID, startDate, endDate string, dateStatistics []string) (
 
 	return daysReport, nil
 }
+
+// HeatMapReport HeatMapReport
+type HeatMapReport struct {
+	ID             int    `json:"-"`
+	Name           string `json:"name"`
+	Date           string `json:"date"`
+	TotalSpendTime int    `json:"total_spend_time"`
+}
+
+// GetTaskHeatMap GetTaskHeatMap
+func GetTaskHeatMap(c *gin.Context) {
+	var heatmap []*HeatMapReport
+	userID := c.GetString("user_id")
+	groupIDstr, _ := c.GetQuery("group_id")
+
+	groupID, err := strconv.Atoi(groupIDstr)
+	if err != nil || groupID == 0 {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{"msg": "group_id not found"})
+		return
+	}
+
+	nowTime := time.Now()
+	endDate := nowTime.Format(config.Val.TimeFormat)
+	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
+	dateStatistics := rangeDate(nowTime, 7)
+
+	tasks, err := model.TaskModel.GetTasksByParentID([]int{groupID}, userID, []int{model.TaskAble})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("GetTasksByParentID error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	data, err := model.RecordsModel.SumByDateByParentID(userID, groupID, startDate, endDate)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("SumByDateByParentID error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	for _, t := range tasks {
+		for _, ds := range dateStatistics {
+			heatmap = append(heatmap, &HeatMapReport{
+				ID:   t.ID,
+				Name: t.Name,
+				Date: ds,
+			})
+		}
+	}
+
+	for _, d := range data {
+		t1, err := time.Parse(time.RFC3339, d.Date)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"date":       d.Date,
+				"origin_err": err.Error(),
+			}).Error("GetAllGroupHeatMap Parse error")
+			res.SystemError(c, res.ErrSystemCode, gin.H{})
+			return
+		}
+
+		parsedDate := t1.Format("2006-01-02")
+
+		for _, h := range heatmap {
+			if h.ID == d.TaskID && h.Date == parsedDate {
+				h.TotalSpendTime = d.SpendTime
+				break
+			}
+		}
+	}
+
+	res.Success(c, gin.H{
+		"report": heatmap,
+	})
+}
+
+// GetAllGroupHeatMap GetAllGroupHeatMap
+func GetAllGroupHeatMap(c *gin.Context) {
+	var heatmap []*HeatMapReport
+	userID := c.GetString("user_id")
+
+	nowTime := time.Now()
+	endDate := nowTime.Format(config.Val.TimeFormat)
+	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
+	dateStatistics := rangeDate(nowTime, 7)
+
+	data, err := model.RecordsModel.SumByDateGroupByParent(userID, startDate, endDate)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("SumByDateByParent error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	groups, err := model.TaskModel.GetGroup(userID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("GetGroup error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	for _, g := range groups {
+		for _, ds := range dateStatistics {
+			heatmap = append(heatmap, &HeatMapReport{
+				ID:   g.ID,
+				Name: g.Name,
+				Date: ds,
+			})
+		}
+	}
+
+	for _, d := range data {
+		t1, err := time.Parse(time.RFC3339, d.Date)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"date":       d.Date,
+				"origin_err": err.Error(),
+			}).Error("GetAllGroupHeatMap Parse error")
+			res.SystemError(c, res.ErrSystemCode, gin.H{})
+			return
+		}
+
+		parsedDate := t1.Format("2006-01-02")
+
+		for _, h := range heatmap {
+			if h.ID == d.ParentID && h.Date == parsedDate {
+				h.TotalSpendTime = d.SpendTime
+				break
+			}
+		}
+	}
+
+	res.Success(c, gin.H{
+		"report": heatmap,
+	})
+}
