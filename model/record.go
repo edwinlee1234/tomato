@@ -85,3 +85,15 @@ func (r *RecordsModelObj) SumByDateGroupByParent(userID string, startDate, endDa
 
 	return data, res.Error
 }
+
+// GetByUserIDAndTime GetByUserIDAndTime
+func (r *RecordsModelObj) GetByUserIDAndTime(userID string, date string) ([]Record, error) {
+	var data []Record
+
+	res := DBConn.Table(r.Table).
+		Where("user_id = ?", userID).
+		Where("date = ?", date).
+		Scan(&data)
+
+	return data, res.Error
+}

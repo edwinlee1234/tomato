@@ -34,6 +34,7 @@ func main() {
 		api.GET("report/line", middleware.Auth(), handler.GetReportLine)
 		api.GET("report/task_heatmap", middleware.Auth(), handler.GetTaskHeatMap)
 		api.GET("report/group_heatmap", middleware.Auth(), handler.GetAllGroupHeatMap)
+		api.GET("day/record", middleware.Auth(), handler.GetDayRecords)
 	}
 
 	r.Run(":" + config.Val.Port)

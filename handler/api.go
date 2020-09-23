@@ -585,3 +585,71 @@ func GetAllGroupHeatMap(c *gin.Context) {
 		"report": heatmap,
 	})
 }
+
+// DayRecord DayRecord
+type DayRecord struct {
+	SpendTime        int    `json:"spend_time"`
+	CreatedTimestamp int64  `json:"created_timestamp"`
+	Name             string `json:"name"`
+	GroupName        string `json:"group_name"`
+}
+
+// GetDayRecords GetDayRecords
+func GetDayRecords(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	nowTime := time.Now()
+	date := nowTime.Format(config.Val.TimeFormat)
+	records, err := model.RecordsModel.GetByUserIDAndTime(userID, date)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	groups, tasks, err := findGroupsAndTasks(userID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("findGroup error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	dayRecordRes := []DayRecord{}
+	for _, r := range records {
+		d := DayRecord{
+			SpendTime:        r.SpendTime,
+			CreatedTimestamp: r.CreatedTimestamp,
+		}
+
+		groupExist := false
+		for _, g := range groups {
+			if g.ID == r.ParentID {
+				d.GroupName = g.Name
+				groupExist = true
+				break
+			}
+		}
+
+		taskExist := false
+		for _, t := range tasks {
+			if t.ID == r.TaskID {
+				d.Name = t.Name
+				taskExist = true
+				break
+			}
+		}
+
+		if groupExist && taskExist {
+			dayRecordRes = append(dayRecordRes, d)
+		}
+	}
+
+	res.Success(c, gin.H{
+		"records": dayRecordRes,
+	})
+}
