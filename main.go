@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"tomato/config"
 	"tomato/handler"
 	"tomato/middleware"
@@ -13,6 +14,7 @@ import (
 
 func main() {
 	load()
+	os.Setenv("TZ", "Asia/Taipei")
 
 	gin.SetMode(config.Val.Mode)
 	r := gin.Default()
@@ -25,9 +27,12 @@ func main() {
 		api.GET("ouath/google/url", handler.GoogleAccsess)
 		api.GET("ouath/google/login", handler.GoogleLogin)
 		api.GET("user/info", handler.GetUserInfo)
+		api.GET("user/logout", handler.GetUserLogout)
 		api.POST("task", middleware.Auth(), handler.CreateTask)
 		api.GET("groups", middleware.Auth(), handler.GetGroups)
+		api.GET("groups_name", middleware.Auth(), handler.GetGroupsName)
 		api.PUT("task", middleware.Auth(), handler.UpdateTask)
+		api.PUT("task/done", middleware.Auth(), handler.TaskDone)
 		api.DELETE("task/:task_id", middleware.Auth(), handler.DeleteTask)
 		api.POST("pomo", middleware.Auth(), handler.Pomo)
 		api.GET("report/pie", middleware.Auth(), handler.GetReportPie)

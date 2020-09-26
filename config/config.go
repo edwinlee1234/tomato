@@ -13,6 +13,9 @@ var Val Config
 // Config Config
 type Config struct {
 	Mode string `mapstructure:"MODE"`
+
+	Domain string `mapstructure:"DOMAIN"`
+
 	Port string `mapstructure:"PORT"`
 
 	DBHost     string `mapstructure:"DB_HOST"`
@@ -31,6 +34,7 @@ type Config struct {
 
 	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
 	GoogleClientID  string `mapstructure:"GOOLE_CLIENT_ID"`
+	RedirectURL     string `mapstructure:"REDIRECT_URL"`
 
 	TimeFormat string `mapstructure:"TIMEFORMAT"`
 

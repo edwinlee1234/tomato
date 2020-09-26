@@ -16,7 +16,6 @@ import (
 	"tomato/pkg/res"
 )
 
-const redirectURL = "http://localhost:9090/api/ouath/google/login"
 const scope = "https://www.googleapis.com/auth/userinfo.profile"
 
 // GoogleAccsess GoogleAccsess
@@ -29,7 +28,7 @@ func GoogleAccsess(c *gin.Context) {
 func oauthURL() string {
 	u := "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&response_type=code&scope=%s&redirect_uri=%s"
 
-	return fmt.Sprintf(u, config.Val.GoogleClientID, scope, redirectURL)
+	return fmt.Sprintf(u, config.Val.GoogleClientID, scope, config.Val.RedirectURL)
 }
 
 // GoogleLogin GoogleLogin
@@ -63,7 +62,7 @@ func GoogleLogin(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(jwt.Key, jwtToken, config.Val.JWTTokenLife, "/", "localhost", false, true)
+	c.SetCookie(jwt.Key, jwtToken, config.Val.JWTTokenLife, "/", config.Val.Domain, false, true)
 
 	c.Redirect(http.StatusFound, "/")
 }
@@ -71,7 +70,7 @@ func GoogleLogin(c *gin.Context) {
 func accessToken(code string) (token string, err error) {
 	u := "https://www.googleapis.com/oauth2/v4/token"
 
-	data := url.Values{"code": {code}, "client_id": {config.Val.GoogleClientID}, "client_secret": {config.Val.GoogleSecretKey}, "grant_type": {"authorization_code"}, "redirect_uri": {redirectURL}}
+	data := url.Values{"code": {code}, "client_id": {config.Val.GoogleClientID}, "client_secret": {config.Val.GoogleSecretKey}, "grant_type": {"authorization_code"}, "redirect_uri": {config.Val.RedirectURL}}
 	body := strings.NewReader(data.Encode())
 
 	resp, err := http.Post(u, "application/x-www-form-urlencoded", body)

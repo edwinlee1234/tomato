@@ -122,3 +122,15 @@ func (m TasksModelObj) GetTasksByParentID(parentID []int, userID string, status 
 
 	return tasks, res.Error
 }
+
+// Done Done
+func (m TasksModelObj) Done(id int, userID string) error {
+	res := DBConn.Table(m.Table).
+		Where("id = ?", id).
+		Where("user_id = ?", userID).
+		Updates(map[string]interface{}{
+			"status": TaskDone,
+		})
+
+	return res.Error
+}

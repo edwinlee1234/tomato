@@ -23,3 +23,7 @@ JWT_TOKEN_LIFE: 2592000
 JWT_SECRET: "vWe3gYDEThzLK2ROAJSZPm7kmsDi88c20noscs8AqyuEc4t9UNLqXYS16OmYy0O"
 
 TIMEFORMAT: "2006-01-02"
+
+DOMAIN: "localhost"
+
+REDIRECT_URL: "http://localhost:9090/api/ouath/google/login"

@@ -653,3 +653,58 @@ func GetDayRecords(c *gin.Context) {
 		"records": dayRecordRes,
 	})
 }
+
+// TaskDone TaskDone
+func TaskDone(c *gin.Context) {
+	var params struct {
+		ID int `json:"id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&params); err != nil {
+		res.BadRequest(c, res.ErrParamsCode, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	if err := model.TaskModel.Done(params.ID, c.GetString("user_id")); err != nil {
+		log.WithFields(log.Fields{
+			"origin_err": err.Error(),
+		}).Error("db error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	res.Success(c, gin.H{})
+}
+
+// GetGroupsName GetGroupsName
+func GetGroupsName(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	groups, err := model.TaskModel.GetGroup(userID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"user_id":    userID,
+			"origin_err": err.Error(),
+		}).Error("GetGroup error")
+		res.SystemError(c, res.ErrSystemCode, gin.H{})
+		return
+	}
+
+	type groupNameList struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+	data := []groupNameList{}
+	for _, g := range groups {
+		data = append(data, groupNameList{
+			ID:   g.ID,
+			Name: g.Name,
+		})
+	}
+
+	res.Success(c, gin.H{
+		"groups": data,
+	})
+}
