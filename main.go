@@ -8,6 +8,7 @@ import (
 	"tomato/model"
 	"tomato/pkg/redis"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,6 +21,7 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.CROSS())
 
+	r.Use(static.Serve("/", static.LocalFile("./frontend/dist/", false)))
 	r.GET("/ping", handler.Ping)
 
 	api := r.Group("/api")

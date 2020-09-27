@@ -9,6 +9,9 @@ github.com/dgryski/go-rendezvous
 github.com/fsnotify/fsnotify
 # github.com/gin-contrib/sse v0.1.0
 github.com/gin-contrib/sse
+# github.com/gin-contrib/static v0.0.0-20200916080430-d45d9a37d28e
+## explicit
+github.com/gin-contrib/static
 # github.com/gin-gonic/gin v1.6.3
 ## explicit
 github.com/gin-gonic/gin
