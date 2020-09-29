@@ -22,7 +22,7 @@
     </div>
 
     <b-modal id="modal-1" title="Login">
-      <h1>Google</h1>
+      <h1 v-on:click="googleLogin" class="google_login_btn">Google</h1>
     </b-modal>
 
     <br>
@@ -48,13 +48,87 @@ export default {
   },
 
   mounted: function () {
+    this.userInfo()
   },
 
   methods: {
+    userInfo() {
+      let self = this
+      this.axios.get(this.APIURL + "/api/user/info")
+      .then(function (resp) {
+        if (resp.data.result !== true) {
+          self.$bvToast.toast(resp.data.msg, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+          return
+        }
+
+        console.log(resp.data)
+      })
+      .catch(function (error) {
+          self.$bvToast.toast(error, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+      });
+    },
+
+    googleLogin() {
+      let self = this
+      this.axios.get(this.APIURL + "/api/ouath/google/url")
+      .then(function (resp) {
+        if (resp.data.result !== true) {
+          self.$bvToast.toast(resp.data.msg, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+          return
+        }
+
+        window.location.replace(resp.data.data.url)
+      })
+      .catch(function (error) {
+          self.$bvToast.toast(error, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+      });
+    },
+
+    logout() {
+      let self = this
+      this.axios.get(this.APIURL + "/api/user/logout")
+      .then(function (resp) {
+        if (resp.data.result !== true) {
+          self.$bvToast.toast(resp.data.msg, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+          return
+        }
+
+        location.reload();
+      })
+      .catch(function (error) {
+         self.$bvToast.toast(error, {
+            title: "Alert",
+            variant: "danger",
+            solid: true
+          })
+      });
+    },
   },
 }
 </script>
 
 <style lang="scss">
-
+.google_login_btn {
+  cursor: pointer;
+}
 </style>

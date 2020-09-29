@@ -21,6 +21,10 @@ Vue.use(VCharts)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 
+// 全域變數
+Vue.prototype.APIURL = "http://localhost:9090"
+Vue.prototype.BASE = "http://localhost:8080"
+
 new Vue({
   router,
   store,
