@@ -52,12 +52,29 @@
     </div>
 
     <TaskList ref="TaskList" @input="setTaskItem"></TaskList>
+
+    <br>
+
+    <div id="today_record" v-if="userInfo.isLogin">
+      <div>
+        <h4>Today</h4>
+        <hr>
+        <b-list-group>
+          <b-list-group-item v-for="(record,index) in todayRecords" :key="index">
+            <!--created_timestamp減掉spend_time才是開始任務的時候!-->
+            {{ convertTimestampToDate(record.created_timestamp - record.spend_time) }}  {{ record.group_name }} - {{ record.name }}  {{ Math.floor(record.spend_time/60) }}  Minutes
+          </b-list-group-item>
+        </b-list-group>
+      </div>
+    </div>
   </div>
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import TaskList from '@/components/TaskList'
+import tool from '@/lib/tool'
 
 export default {
   name: 'Home',
@@ -69,8 +86,11 @@ export default {
       customMinute: 5,
       startTimeVal: 1500,
       taskItem: null,
+      todayRecords: [],
 		};
   },
+
+  mixins: [tool],
 
   components: {
     "TaskList": TaskList
@@ -80,6 +100,21 @@ export default {
     ...mapState({
       userInfo: state => state.user.info
     }),
+  },
+
+  watch: {
+    userInfo: function () {
+      if (this.userInfo.isLogin === true) {
+        this.fetchTodayRecords()
+      }
+    },
+  },
+
+  mounted: function () {
+    if (this.userInfo.isLogin === false) {
+      return
+    }
+    this.fetchTodayRecords()
   },
 
   methods: {
@@ -97,10 +132,6 @@ export default {
       if (this.timeVal === 0) {
         this.finish()
       }
-    },
-
-    finish() {
-      this.stop()
     },
     
     stop() {
@@ -162,6 +193,56 @@ export default {
       this.stop()
       this.reset()
     },
+
+    convertTimestampToDate(timestamp) {
+      let date = new Date(timestamp * 1000);
+      let hours = date.getHours()
+      let minutes = "0" + date.getMinutes()
+      let seconds = "0" + date.getSeconds()
+
+      return  hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2)
+    },
+
+    finish() {
+      this.stop()
+
+      if (this.taskItem === null) {
+        return
+      }
+
+      let self = this
+      this.axios.post(this.APIURL + "/api/pomo", {
+        "id": this.taskItem.id,
+        "time": this.startTimeVal,
+      })
+      .then(function (resp) {
+        if (resp.data.result !== true) {
+          self.Alert(resp.data.msg)
+          return
+        }
+
+        self.fetchTodayRecords()
+      })
+      .catch(function (error) {
+        self.Alert(error)
+      });
+    },
+
+    fetchTodayRecords() {
+      let self = this
+      this.axios.get(this.APIURL + "/api/day/record")
+      .then(function (resp) {
+        if (resp.data.result !== true) {
+          self.Alert(resp.data.msg)
+          return
+        }
+
+        self.todayRecords = resp.data.data.records
+      })
+      .catch(function (error) {
+        self.Alert(error)
+      })
+    },
   }
 }
 </script>
@@ -214,5 +295,13 @@ export default {
       margin-left: 8px;
     }
   }
+}
+
+#today_record {
+  width: $pageWith;
+  margin: 0 auto;
+  text-align: left;
+  padding: 15px;
+  @extend %box;
 }
 </style>
