@@ -35,6 +35,7 @@
 </template>
 <script>
 import { mapState } from 'vuex'
+import tool from '@/lib/tool'
 
 export default {
   name: 'App',
@@ -43,6 +44,8 @@ export default {
 		return {
 		};
   },
+
+  mixins: [tool],
 
   components: {
   },
@@ -63,11 +66,7 @@ export default {
       this.axios.get(this.APIURL + "/api/user/info")
       .then(function (resp) {
         if (resp.data.result !== true) {
-          self.$bvToast.toast(resp.data.msg, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+          self.Alert(resp.data.msg)
           return
         }
 
@@ -80,11 +79,7 @@ export default {
         }
       })
       .catch(function (error) {
-          self.$bvToast.toast(error, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+        self.Alert(error)
       });
     },
 
@@ -93,22 +88,14 @@ export default {
       this.axios.get(this.APIURL + "/api/ouath/google/url")
       .then(function (resp) {
         if (resp.data.result !== true) {
-          self.$bvToast.toast(resp.data.msg, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+          self.Alert(resp.data.msg)
           return
         }
 
         window.location.replace(resp.data.data.url)
       })
       .catch(function (error) {
-          self.$bvToast.toast(error, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+        self.Alert(error)
       });
     },
 
@@ -117,22 +104,14 @@ export default {
       this.axios.get(this.APIURL + "/api/user/logout")
       .then(function (resp) {
         if (resp.data.result !== true) {
-          self.$bvToast.toast(resp.data.msg, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+          self.Alert(resp.data.msg)
           return
         }
 
         location.reload();
       })
       .catch(function (error) {
-         self.$bvToast.toast(error, {
-            title: "Alert",
-            variant: "danger",
-            solid: true
-          })
+        self.Alert(error)
       });
     },
   },

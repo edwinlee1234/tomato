@@ -28,10 +28,36 @@
         <b-icon class="h5 mb-2" icon="x" v-on:click="popupClose">X</b-icon>
       </b-popover>
     </div>
+
+    <br>
+
+    <div id="task_list" v-if="userInfo.isLogin">
+      <div v-if="!taskItem">
+        <h4>Choose a task</h4>
+        <hr>
+        <h4><b-icon class="plus_btn" v-on:click="showSelectTaskListModal()" icon="plus"></b-icon></h4>
+      </div>
+      <div v-else>
+        <h4>Task</h4>
+        <hr>
+        <b-list-group>
+          <b-list-group-item>{{ taskItem.groupName }} - {{ taskItem.name }} 
+            <span class="task_btn">
+              <b-icon v-on:click="showSelectTaskListModal()" icon="pencil-square"></b-icon>
+              <b-icon v-on:click="clearSelectedTask()" icon="trash"></b-icon>
+            </span>
+          </b-list-group-item>
+        </b-list-group>
+      </div>
+    </div>
+
+    <TaskList ref="TaskList" @input="setTaskItem"></TaskList>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import TaskList from '@/components/TaskList'
 
 export default {
   name: 'Home',
@@ -42,14 +68,21 @@ export default {
       isStart: false,
       customMinute: 5,
       startTimeVal: 1500,
+      taskItem: null,
 		};
   },
 
   components: {
+    "TaskList": TaskList
+  },
+
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.info
+    }),
   },
 
   methods: {
-
     start() {
       if (this.timeVal === 0) {
         return
@@ -111,26 +144,37 @@ export default {
     popupClose() {
       this.$refs.popover.$emit('close')
     },
+
+    showSelectTaskListModal() {
+      this.$refs.TaskList.showSelectTaskListModal()
+    },
+
+    setTaskItem(payload) {
+      this.taskItem = payload
+
+      this.stop()
+      this.reset()
+    },
+
+    clearSelectedTask() {
+      this.taskItem = null
+
+      this.stop()
+      this.reset()
+    },
   }
 }
 </script>
 
 <style scoped lang="scss">
-* {
-  text-align: center;
-}
-
-$pageWith: 600px;
-%box {
-    border: solid 1px;
-    border-radius: 5px;
-}
+ @import '@/assets/css/variables.scss';
 
 #time_block {
   width: $pageWith;
   margin: 0 auto;
   padding-bottom: 20px;
   @extend %box;
+  text-align: center;
 
   #select_timer {
     padding-top: 30px;
@@ -147,6 +191,28 @@ $pageWith: 600px;
   .btn {
     margin: 5px;
     cursor: pointer;  
+  }
+}
+
+#task_list {
+  width: $pageWith;
+  margin: 0 auto;
+  padding: 15px;
+  text-align: left;
+  @extend %box;
+
+  .plus_btn {
+    cursor: pointer;
+  }
+
+  .task_btn {
+    cursor: pointer;
+    position: relative;
+    float:right;
+    
+    .b-icon {
+      margin-left: 8px;
+    }
   }
 }
 </style>
