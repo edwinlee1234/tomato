@@ -675,6 +675,8 @@ func TaskDone(c *gin.Context) {
 		return
 	}
 
+	redis.Conn.Del(context.Background(), redisTasksKey(c.GetString("user_id")))
+
 	res.Success(c, gin.H{})
 }
 
