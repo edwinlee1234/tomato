@@ -134,6 +134,10 @@ export default {
           return
         }
 
+        if (!Array.isArray(resp.data.data.report)) {
+          return
+        }
+
         self.line = resp.data.data.report
 
         self.initLineData()
@@ -149,6 +153,10 @@ export default {
       .then(function (resp) {
         if (resp.data.result !== true) {
           self.Alert(resp.data.msg)
+          return
+        }
+
+        if (!Array.isArray(resp.data.data.report)) {
           return
         }
 
@@ -180,6 +188,10 @@ export default {
           return
         }
 
+        if (!Array.isArray(resp.data.data.report)) {
+          return
+        }
+
         self.heatmap = resp.data.data.report
 
         self.initHeatMap()
@@ -198,6 +210,10 @@ export default {
           return
         }
 
+        if (!Array.isArray(resp.data.data.report)) {
+          return
+        }
+        
         self.heatmap = resp.data.data.report
 
         self.initHeatMap()
