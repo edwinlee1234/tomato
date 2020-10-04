@@ -1,5 +1,21 @@
 $pageWith: 600px;
+$mainColor: #52565e;
+$secondColor: #70818f;
+$fontColor: #fefefe;
+$reportColor:#e6e6e6;
+$reportFontColor: black;
+$boxShadowColor: #383838;
+
 %box {
-    border: solid 1px;
-    border-radius: 5px;
+    border-radius: 15px;
+    margin: 5px;
+    background-color: $secondColor;
+	-webkit-box-shadow: 3px 3px $boxShadowColor;
+	-moz-box-shadow: 3px 3px $boxShadowColor;
+	box-shadow: 3px 3px $boxShadowColor;
+}
+
+%reportBox {
+    @extend %box;
+    background-color: $reportColor;
 }

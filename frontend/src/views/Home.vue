@@ -4,22 +4,27 @@
       <b-container id="select_timer">
         <b-row>
           <b-col id="long_break" v-on:click="longBreak">
-            <b-button variant="outline-success">Long Break</b-button>
+            <b-button variant="outline-light">Long Break</b-button>
           </b-col>
           <b-col id="shot_break" v-on:click="shotBreak">
-            <b-button variant="outline-success">Short Break</b-button>
+            <b-button variant="outline-light">Short Break</b-button>
           </b-col>
           <b-col id="custom">
-            <b-button variant="outline-success">Custom</b-button>
+            <b-button variant="outline-light">Custom</b-button>
           </b-col>
         </b-row>
       </b-container>
       <div id="time">
-        {{ paddingzero(Math.floor(timeVal/60), 2) }}:{{ paddingzero(timeVal % 60, 2) }}
+        <radial-progress-bar :diameter="200"
+                            :completed-steps="runTime"
+                            :total-steps="startTimeVal">
+          <p>{{ paddingzero(Math.floor(timeVal/60), 2) }}:{{ paddingzero(timeVal % 60, 2) }}</p>
+        </radial-progress-bar>
+        
       </div>
-      <b-button class="btn" v-on:click="start" v-if="!isStart" variant="outline-primary">Start</b-button>
-      <b-button class="btn" v-on:click="stop" v-if="isStart" variant="outline-danger">Stop</b-button>
-      <b-button class="btn" v-on:click="reset" v-if="!isStart">Reset</b-button>
+      <b-button class="btn" v-on:click="start" v-if="!isStart" variant="outline-light">Start</b-button>
+      <b-button class="btn" v-on:click="stop" v-if="isStart" variant="danger">Stop</b-button>
+      <b-button class="btn" v-on:click="reset" v-if="!isStart" variant="outline-light">Reset</b-button>
 
       <b-popover ref="popover" target="custom" title="Minute">
         <b-form-input v-model="customMinute" placeholder="Minute"></b-form-input>
@@ -75,6 +80,7 @@
 import { mapState } from 'vuex'
 import TaskList from '@/components/TaskList'
 import tool from '@/lib/tool'
+import RadialProgressBar from 'vue-radial-progress'
 
 export default {
   name: 'Home',
@@ -87,13 +93,15 @@ export default {
       startTimeVal: 1500,
       taskItem: null,
       todayRecords: [],
+      runTime: 0,
 		};
   },
 
   mixins: [tool],
 
   components: {
-    "TaskList": TaskList
+    "TaskList": TaskList,
+    "RadialProgressBar": RadialProgressBar,
   },
 
   computed: {
@@ -128,7 +136,9 @@ export default {
     },
 
     countDown() {
-      this.timeVal = this.timeVal - 1
+      this.timeVal--
+      this.runTime++
+
       if (this.timeVal === 0) {
         this.finish()
       }
@@ -142,12 +152,14 @@ export default {
 
     reset() {
       this.timeVal = this.startTimeVal
+      this.runTime = 0
     },
 
     shotBreak() {
       this.stop()
 
       this.timeVal = 900
+      this.runTime = 0
       this.startTimeVal = this.timeVal
     },
 
@@ -155,15 +167,18 @@ export default {
       this.stop()
 
       this.timeVal = 1500
+      this.runTime = 0
       this.startTimeVal = this.timeVal
     },
 
     custom()  {
+      this.stop()
       if (this.customMinute > 60) {
         this.customMinute = 60
       }
 
       this.timeVal = this.customMinute * 60
+      this.runTime = 0
       this.startTimeVal = this.timeVal
       this.popupClose()
     },
@@ -250,6 +265,20 @@ export default {
 <style scoped lang="scss">
  @import '@/assets/css/variables.scss';
 
+.b-icon {
+  cursor: pointer;
+}
+
+.list-group-item {
+  background-color: $mainColor;
+}
+
+.home {
+  hr {
+    border-top: solid 1px $fontColor;
+  }
+}
+
 #time_block {
   width: $pageWith;
   margin: 0 auto;
@@ -264,9 +293,14 @@ export default {
   }
 
   #time {
-    font-size: 50px;
-    padding-top: 30px;
-    padding-bottom: 30px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    width: 200px;
+    p {
+      font-size: 40px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
   }
 
   .btn {

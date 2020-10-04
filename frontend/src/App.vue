@@ -1,19 +1,13 @@
 <template>
   <div id="app">
-    <div>
+    <div class="app_nav_bar">
       <b-navbar toggleable="lg" type="light">
-        <b-navbar-brand href="#">Tomato</b-navbar-brand>
-        <b-navbar-nav>
-          <b-nav-item><router-link to="/">Home</router-link></b-nav-item>
-          <b-nav-item v-if="this.userState.isLogin" href="#"><router-link to="/report">Report</router-link></b-nav-item>
-        </b-navbar-nav>
+        <b-navbar-brand href="#"><router-link to="/">Tomato</router-link></b-navbar-brand>
 
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav class="ml-auto" type="light">
-            <b-nav-item-dropdown right>
-              <template v-slot:button-content>
-                <em>{{userState.name}}</em> <!--顯示會員名稱-->
-              </template>
+            <b-nav-item v-if="this.userState.isLogin" href="#"><router-link to="/report">Report</router-link></b-nav-item>
+            <b-nav-item-dropdown :text="userState.name" right>
               <!-- 如果還沒登入就顯示Sign In -->
               <b-dropdown-item v-if="!this.userState.isLogin" v-b-modal.modal-1>Sign In</b-dropdown-item>
               <!-- 如果還登入了就顯示Sign Out -->
@@ -119,7 +113,59 @@ export default {
 </script>
 
 <style lang="scss">
+@import '@/assets/css/variables.scss';
+
+* {
+  color: $fontColor;
+}
+
 .google_login_btn {
   cursor: pointer;
+}
+
+html {
+  background-color: $mainColor;
+}
+
+.popover-header {
+  color: black;
+}
+.popover-body {
+  .b-icon {
+    fill: black;     
+    font-size: 20px;
+  }
+}
+
+.modal-body {
+  background-color: $mainColor;
+}
+.modal-header {
+  background-color: $mainColor;  
+  .close{
+    color: $fontColor;
+  }
+}
+.modal-footer {
+  background-color: $mainColor; 
+}
+
+#app {
+  background-color: $mainColor;
+
+  .app_nav_bar {
+    margin: 0 auto;
+    width: 800px;
+    border-bottom: 1px solid $fontColor;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .dropdown-item {
+    color: black;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="report">
+  <div id="report">
     <b-container> 
       <b-row>
         <b-col class="box">
@@ -260,18 +260,28 @@ export default {
 <style scoped lang="scss">
 @import '@/assets/css/variables.scss';
 
-.report_drop_down{
-  text-align: left;
+* {
+  color: $reportFontColor;
 }
 
-.back_btn{
-  cursor: pointer;
-  text-align: center;
+#report {
+  margin: 0 auto;
+  width: 1000px;
+
+  .report_drop_down{
+    text-align: left;
+  }
+
+  .back_btn{
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .box{
+    @extend %reportBox;
+    padding-top: 5px;
+    padding-bottom: 5px;;
+  }
 }
 
-.box{
-  @extend %box;
-  padding-top: 5px;
-  padding-bottom: 5px;;
-}
 </style>

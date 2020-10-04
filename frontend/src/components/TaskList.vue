@@ -14,16 +14,18 @@
         <b-collapse :id="group.name" role="tabpanel">
           <b-card-body>
             <b-card-text  v-for="(task,i) in group.tasks" :key="i">
-              <span class="task_name" v-on:click="selectTask(task.id, task.name, group.name)">{{ task.name }}</span>
-              <span class="task_btn">
-                <span><b-icon v-on:click="showEditTaskModal(task)" icon="pencil-square"></b-icon></span>
-                <span><b-icon v-on:click="taskDone(task.id)" icon="check2-square"></b-icon></span>
-                <span><b-icon v-on:click="deleteConfirm(task.id)" icon="trash"></b-icon></span>
-              </span>
+              <div class="task_item">
+                <span class="task_name" v-on:click="selectTask(task.id, task.name, group.name)">{{ task.name }}</span>
+                <span class="task_btn">
+                  <span><b-icon v-on:click="showEditTaskModal(task)" icon="pencil-square"></b-icon></span>
+                  <span><b-icon v-on:click="taskDone(task.id)" icon="check2-square"></b-icon></span>
+                  <span><b-icon v-on:click="deleteConfirm(task.id)" icon="trash"></b-icon></span>
+                </span>
+              </div>
             </b-card-text>
 
             <b-card-text>
-              <b-icon class="add_btn" v-on:click="showAddTaskModal(group.id)" id="add_task_btn" icon="plus"></b-icon> 
+              <b-icon class="add_task_btn" v-on:click="showAddTaskModal(group.id)" icon="plus"></b-icon> 
             </b-card-text>
           </b-card-body>
         </b-collapse>
@@ -32,7 +34,7 @@
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
           <b-button v-on:click="showAddGroupModal" block variant="light">
-            <b-icon class="add_btn" id="add_task_btn" icon="plus"></b-icon> 
+            <b-icon icon="plus"></b-icon> 
           </b-button>
         </b-card-header>
       </b-card> 
@@ -48,8 +50,9 @@
             placeholder="Enter Task name"
           ></b-form-input>
         </b-form-group>
+        <br>
 
-        <b-button variant="primary" v-on:click="addTaskSubmit">Submit</b-button>
+        <b-button variant="outline-light" v-on:click="addTaskSubmit">Submit</b-button>
       </b-form>
     </b-modal>
 
@@ -63,8 +66,9 @@
             placeholder="Enter Group name"
           ></b-form-input>
         </b-form-group>
+        <br>
 
-        <b-button variant="primary" v-on:click="addGroupSubmit">Submit</b-button>
+        <b-button variant="outline-light" v-on:click="addGroupSubmit">Submit</b-button>
       </b-form>
     </b-modal>
 
@@ -78,8 +82,9 @@
             placeholder="Enter Task name"
           ></b-form-input>
         </b-form-group>
+        <br>
 
-        <b-button variant="primary" v-on:click="editTaskSubmit">Submit</b-button>
+        <b-button variant="outline-light" v-on:click="editTaskSubmit">Submit</b-button>
       </b-form>
     </b-modal>
 
@@ -93,8 +98,9 @@
             placeholder="Enter Group name"
           ></b-form-input>
         </b-form-group>
+        <br>
 
-        <b-button variant="primary" v-on:click="editGroupSubmit">Submit</b-button>
+        <b-button variant="outline-light" v-on:click="editGroupSubmit">Submit</b-button>
       </b-form>
     </b-modal>
   </div>
@@ -367,12 +373,26 @@ export default {
 <style scoped lang="scss">
  @import '@/assets/css/variables.scss';
 
+ * {
+  color: $fontColor;
+  background-color: $mainColor;
+}
+
 .b-icon {
   cursor: pointer;
 }
 
 .task_name {
   cursor: pointer;    
+}
+
+.task_item {
+  padding: 3px;
+}
+
+.task_item:hover {
+  border-bottom: solid 1px;
+  padding-bottom: 2px;
 }
 
 .group_list {
@@ -394,7 +414,12 @@ export default {
   float:right;
   span {
     padding: 5px;
+    margin-left: 3px;
   }
+}
+
+.add_task_btn {
+  font-size: 20px;
 }
 
 </style>
