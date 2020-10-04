@@ -43,7 +43,6 @@ func (m TasksModelObj) Create(task Task) error {
 func (m TasksModelObj) GetTasks(userID string, status []int) ([]*Task, error) {
 	var tasks []*Task
 	res := DBConn.Table(m.Table).
-		Select("id, parent_id, name, created_timestamp").
 		Where("user_id = ?", userID).
 		Where("status IN (?)", status).
 		Order("created_timestamp ASC").

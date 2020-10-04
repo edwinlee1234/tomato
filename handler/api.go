@@ -78,6 +78,10 @@ func GetGroups(c *gin.Context) {
 	}
 
 	for _, t := range tasks {
+		if t.Status != model.TaskAble {
+			continue
+		}
+
 		for _, g := range groupList {
 			if t.ParentID == g.ID {
 				g.Tasks = append(g.Tasks, t)
@@ -139,7 +143,7 @@ func findTasks(userID string, parentID []int) (tasks []*model.Task, err error) {
 	}
 
 	if len(data) == 0 {
-		data, err = model.TaskModel.GetTasks(userID, []int{model.TaskAble})
+		data, err = model.TaskModel.GetTasks(userID, []int{model.TaskAble, model.TaskDone})
 		if err != nil {
 			return
 		}
@@ -464,7 +468,7 @@ func GetTaskHeatMap(c *gin.Context) {
 	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
 	dateStatistics := rangeDate(nowTime, 7)
 
-	tasks, err := model.TaskModel.GetTasksByParentID([]int{groupID}, userID, []int{model.TaskAble})
+	tasks, err := model.TaskModel.GetTasksByParentID([]int{groupID}, userID, []int{model.TaskAble, model.TaskDone})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"user_id":    userID,
