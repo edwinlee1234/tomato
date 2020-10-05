@@ -262,7 +262,7 @@ func Pomo(c *gin.Context) {
 		return
 	}
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	record := model.Record{
 		UserID:           userID,
 		TaskID:           task.ID,
@@ -302,7 +302,7 @@ type GroupReport struct {
 func GetReportPie(c *gin.Context) {
 	userID := c.GetString("user_id")
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	endDate := nowTime.Format(config.Val.TimeFormat)
 	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
 
@@ -391,7 +391,7 @@ func rangeDate(endDate time.Time, days int) []string {
 func GetReportLine(c *gin.Context) {
 	userID := c.GetString("user_id")
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	endDate := nowTime.Format(config.Val.TimeFormat)
 	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
 
@@ -463,7 +463,7 @@ func GetTaskHeatMap(c *gin.Context) {
 		return
 	}
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	endDate := nowTime.Format(config.Val.TimeFormat)
 	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
 	dateStatistics := rangeDate(nowTime, 7)
@@ -529,7 +529,7 @@ func GetAllGroupHeatMap(c *gin.Context) {
 	var heatmap []*HeatMapReport
 	userID := c.GetString("user_id")
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	endDate := nowTime.Format(config.Val.TimeFormat)
 	startDate := nowTime.AddDate(0, 0, -7).Format(config.Val.TimeFormat)
 	dateStatistics := rangeDate(nowTime, 7)
@@ -602,7 +602,7 @@ type DayRecord struct {
 func GetDayRecords(c *gin.Context) {
 	userID := c.GetString("user_id")
 
-	nowTime := time.Now()
+	nowTime := getNowTime()
 	date := nowTime.Format(config.Val.TimeFormat)
 	records, err := model.RecordsModel.GetByUserIDAndTime(userID, date)
 	if err != nil {
@@ -713,4 +713,10 @@ func GetGroupsName(c *gin.Context) {
 	res.Success(c, gin.H{
 		"groups": data,
 	})
+}
+
+func getNowTime() time.Time {
+	loc, _ := time.LoadLocation("Asia/Taipei")
+
+	return time.Now().In(loc)
 }

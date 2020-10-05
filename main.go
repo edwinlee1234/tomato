@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"tomato/config"
 	"tomato/handler"
 	"tomato/middleware"
@@ -15,7 +14,6 @@ import (
 
 func main() {
 	load()
-	os.Setenv("TZ", "Asia/Taipei")
 
 	gin.SetMode(config.Val.Mode)
 	r := gin.Default()
