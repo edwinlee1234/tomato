@@ -62,7 +62,7 @@ func GoogleLogin(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(jwt.Key, jwtToken, config.Val.JWTTokenLife, "/", config.Val.Domain, false, true)
+	c.SetCookie(jwt.Key, jwtToken, config.Val.JWTTokenLife, "/", config.Val.Domain, true, true)
 
 	c.Redirect(http.StatusFound, "/")
 }
