@@ -19,8 +19,6 @@ func main() {
 
 	gin.SetMode(config.Val.Mode)
 	r := gin.Default()
-	r.Use(middleware.CROSS())
-
 	r.Use(static.Serve("/", static.LocalFile("./frontend/dist/", false)))
 	r.GET("/ping", handler.Ping)
 

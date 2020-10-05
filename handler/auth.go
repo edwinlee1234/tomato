@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -35,6 +36,11 @@ func oauthURL() string {
 func GoogleLogin(c *gin.Context) {
 	code := c.Query("code")
 
+	if code == "" {
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+
 	token, err := accessToken(code)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -45,9 +51,17 @@ func GoogleLogin(c *gin.Context) {
 	}
 
 	id, name, err := getGoogleUserInfo(token)
-	if err != nil {
+	if err != nil || id == "" || name == "" {
 		log.WithFields(log.Fields{
 			"err": err,
+		}).Debug("getGoogleUserInfo error")
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+
+	if id == "" || name == "" {
+		log.WithFields(log.Fields{
+			"err": errors.New("name or id empty"),
 		}).Debug("getGoogleUserInfo error")
 		c.Redirect(http.StatusFound, "/")
 		return
