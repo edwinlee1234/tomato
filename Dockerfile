@@ -1,23 +1,12 @@
-FROM heroku/heroku:18-build as build
+FROM golang:1.15.2-alpine3.12
 
-COPY . /app
-WORKDIR /app
+ADD . /go/src/app
+COPY ./config.example.yaml /go/src/app/config.yaml 
 
-# Setup buildpack
-RUN mkdir -p /tmp/buildpack/heroku/go /tmp/build_cache /tmp/env
-RUN curl https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/go.tgz | tar xz -C /tmp/buildpack/heroku/go
+WORKDIR /go/src/app
 
-#Execute Buildpack
-RUN STACK=heroku-18 /tmp/buildpack/heroku/go/bin/compile /app /tmp/build_cache /tmp/env
+ENV PORT 8080
+EXPOSE 8080
 
-# Prepare final, minimal image
-FROM heroku/heroku:18
-
-COPY --from=build /app /app
-COPY --from=build /app/config-example.yaml /app/config.yaml
-COPY --from=build /app/config-example.yaml /app/bin/config.yaml
-ENV HOME /app
-WORKDIR /app
-RUN useradd -m heroku
-USER heroku
-CMD /app/bin/pomo
+RUN go build -mod=vendor -o main .
+CMD ["/go/src/app/main"]
