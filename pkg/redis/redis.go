@@ -14,6 +14,7 @@ var Conn *redis.Client
 func Init() {
 	Conn = redis.NewClient(&redis.Options{
 		Addr:     config.Val.RedisHost + ":" + config.Val.RedisPort,
+		Username: config.Val.RedisUser,
 		Password: config.Val.RedisPass,
 		DB:       0,
 	})

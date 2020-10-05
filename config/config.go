@@ -30,6 +30,7 @@ type Config struct {
 
 	RedisHost string `mapstructure:"REDIS_HOST"`
 	RedisPort string `mapstructure:"REDIS_PORT"`
+	RedisUser string `mapstructure:"REDIS_USER"`
 	RedisPass string `mapstructure:"REDIS_PASS"`
 
 	GoogleSecretKey string `mapstructure:"GOOGLE_SECRET_KEY"`
