@@ -22,8 +22,8 @@ Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 
 // 全域變數
-Vue.prototype.APIURL = "http://localhost:9090"
-Vue.prototype.BASE = "http://localhost:8080"
+Vue.prototype.APIURL = "https://apptomatotimer.herokuapp.com"
+Vue.prototype.BASE = "https://apptomatotimer.herokuapp.com"
 
 new Vue({
   router,
